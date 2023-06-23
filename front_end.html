@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DataTable Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <style>
+    .row-index {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-12">
+        <table id="example" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Website</th>
+              <th>Company</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">User Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="userModalBody">
+          <!-- User details will be displayed here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var table = $('#example').DataTable({
+        "ajax": {
+          "url": "https://jsonplaceholder.typicode.com/users",
+          "dataSrc": ""
+        },
+        "columns": [
+          { "data": null },
+          { "data": "id" },
+          { "data": "name" },
+          { "data": "username" },
+          { "data": "email" },
+          { "data": "phone" },
+          { 
+            "data": "website",
+            "render": function (data, type, row) {
+              return '<a href="' + data + '">' + data + '</a>';
+            }
+          },
+          { "data": "company.name" }
+        ],
+        "columnDefs": [
+          {
+            "targets": 0,
+            "data": null,
+            "orderable": false,
+            "searchable": false,
+            "render": function (data, type, row, meta) {
+              // Get the current page information
+              var pageInfo = table.page.info();
+              // Calculate the updated index by considering the current page and page length
+              var rowIndex = meta.row + (pageInfo.page * pageInfo.length) + 1;
+              return '<span class="row-index">' + rowIndex + '</span>';
+            }
+          }
+        ],
+        "rowCallback": function(row, data, index) {
+          var pageInfo = table.page.info();
+          var rowIndex = index + (pageInfo.page * pageInfo.length) + 1;
+          $('td:first-child', row).html('<span class="row-index">' + rowIndex + '</span>');
+        }
+      });
+
+      // Handle row click event
+      $('#example tbody').on('click', 'tr', function () {
+        var rowData = table.row(this).data();
+        showUserDetails(rowData);
+      });
+
+      function showUserDetails(user) {
+        var userDetails = '<ul>' +
+          '<li><strong>ID:</strong> ' + user.id + '</li>' +
+          '<li><strong>Name:</strong> ' + user.name + '</li>' +
+          '<li><strong>Username:</strong> ' + user.username + '</li>' +
+          '<li><strong>Email:</strong> ' + user.email + '</li>' +
+          '<li><strong>Phone:</strong> ' + user.phone + '</li>' +
+          '<li><strong>Website:</strong> ' + user.website + '</li>' +
+          '<li><strong>Company:</strong> ' + user.company.name + '</li>' +
+          '<li><strong>Address:</strong> ' + user.address.street + ', ' + user.address.suite + ', ' + user.address.city + ', ' + user.address.zipcode + '</li>' +
+          '</ul>';
+
+        $('#userModalBody').html(userDetails);
+        $('#userModal').modal('show');
+      }
+    });
+  </script>
+
+</body>
+
+</html>
